@@ -1,0 +1,371 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+{% if logged_in %}My Portfolio{% else %}Home{% endif %}
+
+{% endblock %}
+
+{% block content %}
+
+{% if not logged_in %}
+
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <div class="row blockchain-hero mb-5">
+        <div class="col-md-6 d-flex align-items-center">
+            <div class="hero-content p-4">
+                <h1 class="display-4 mb-4">Unlock the World of Cryptocurrency</h1>
+                <p class="lead mb-4">Discover, Trade, and Learn about the Future of Finance</p>
+                <div class="cta-buttons">
+                    <a href="/register" class="btn btn-primary btn-lg me-3">Get Started</a>
+                    <a href="#learn-more" class="btn btn-outline-secondary btn-lg">Learn More</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <img src="/static/blockchain-network.svg" alt="Blockchain Network" class="img-fluid blockchain-network-image">
+        </div>
+    </div>
+
+    <!-- Blockchain Features Section -->
+    <div class="row blockchain-features text-center py-5" id="learn-more">
+        <div class="container">
+            <h2 class="mb-5">How Blockchain Transforms Finance</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <img src="/static/decentralization.svg" alt="Decentralization" class="feature-icon">
+                        <h3>Decentralization</h3>
+                        <p>No single point of control. Power distributed across a global network of computers.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <img src="/static/security.svg" alt="Security" class="feature-icon">
+                        <h3>Enhanced Security</h3>
+                        <p>Cryptographic techniques protect transactions and prevent unauthorized alterations.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <img src="/static/transparency.svg" alt="Transparency" class="feature-icon">
+                        <h3>Transparent Transactions</h3>
+                        <p>Every transaction is recorded on a public ledger, ensuring complete visibility.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Cryptocurrencies Section -->
+    <div class="container top-cryptocurrencies py-5">
+        <h2 class="text-center mb-4">Top Cryptocurrencies by Market Cap</h2>
+        <p class="text-center mb-5">Global Market Cap: ${{ market_cap }}</p>
+
+        <!-- Search and Page Size Controls -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <input type="text" id="cryptoSearch" class="form-control" placeholder="Search cryptocurrencies...">
+            </div>
+            <div class="col-md-6 text-end">
+                <select id="pageSize" class="form-select d-inline-block w-auto">
+                    <option value="20">Show 20</option>
+                    <option value="50">Show 50</option>
+                    <option value="100">Show 100</option>
+                    <option value="200">Show All</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover crypto-table" id="cryptoTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Coin</th>
+                        <th>Price</th>
+                        <th>1h %</th>
+                        <th>24h %</th>
+                        <th>7d %</th>
+                        <th>Market Cap</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for coin in coins %}
+                    <tr class="crypto-row">
+                        <td>{{ coin.market_cap_rank }}</td>
+                        <td>
+                            <img src="{{ coin.image_url }}" alt="{{ coin.name }}" class="coin-logo me-2">
+                            {{ coin.name }}
+                            <span class="text-muted">({{ coin.symbol }})</span>
+                        </td>
+                        <td>${{ coin.current_price|format_crypto_price }}</td>
+                        <td class="{{ 'text-success' if coin.price_change_percentage_1h >= 0 else 'text-danger' }}">
+                            {{ coin.price_change_percentage_1h|format_percentage }}%
+                        </td>
+                        <td class="{{ 'text-success' if coin.price_change_percentage_24h >= 0 else 'text-danger' }}">
+                            {{ coin.price_change_percentage_24h|format_percentage }}%
+                        </td>
+                        <td class="{{ 'text-success' if coin.price_change_percentage_7d >= 0 else 'text-danger' }}">
+                            {{ coin.price_change_percentage_7d|format_percentage }}%
+                        </td>
+                        <td>${{ (coin.market_cap / 1000000)|format_crypto_price }}M</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Cryptocurrency pagination" class="mt-4">
+            <ul class="pagination justify-content-center" id="pagination">
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Add custom styles -->
+    <style>
+    .coin-logo {
+        width: 25px;
+        height: 25px;
+        object-fit: contain;
+    }
+
+    .crypto-table {
+        font-size: 0.95rem;
+    }
+
+    .crypto-table td {
+        vertical-align: middle;
+    }
+
+    .pagination .page-link {
+        color: #0d6efd;
+        cursor: pointer;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+    }
+
+    .crypto-table tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    </style>
+
+    <!-- Add JavaScript for table functionality -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.getElementById('cryptoTable');
+        const searchInput = document.getElementById('cryptoSearch');
+        const pageSizeSelect = document.getElementById('pageSize');
+        const tbody = table.querySelector('tbody');
+        const paginationContainer = document.getElementById('pagination');
+
+        let allRows = Array.from(tbody.querySelectorAll('tr'));
+        let currentPage = 1;
+        let pageSize = parseInt(pageSizeSelect.value);
+
+        // Search functionality
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            allRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+            updatePagination();
+        });
+
+        // Page size functionality
+        pageSizeSelect.addEventListener('change', function() {
+            pageSize = parseInt(this.value);
+            currentPage = 1;
+            updatePagination();
+        });
+
+        // Pagination functions
+        function updatePagination() {
+            const visibleRows = allRows.filter(row => row.style.display !== 'none');
+            const pageCount = Math.ceil(visibleRows.length / pageSize);
+
+            // Show/hide rows for current page
+            visibleRows.forEach((row, index) => {
+                row.style.display = (Math.floor(index / pageSize) + 1 === currentPage) ? '' : 'none';
+            });
+
+            // Update pagination controls
+            paginationContainer.innerHTML = '';
+
+            // Previous button
+            if (pageCount > 1) {
+                const prevLi = document.createElement('li');
+                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                prevLi.innerHTML = `<a class="page-link" ${currentPage !== 1 ? 'onclick="changePage(${currentPage - 1})"' : ''}>Previous</a>`;
+                paginationContainer.appendChild(prevLi);
+            }
+
+            // Page numbers
+            for (let i = 1; i <= pageCount; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${currentPage === i ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" onclick="changePage(${i})">${i}</a>`;
+                paginationContainer.appendChild(li);
+            }
+
+            // Next button
+            if (pageCount > 1) {
+                const nextLi = document.createElement('li');
+                nextLi.className = `page-item ${currentPage === pageCount ? 'disabled' : ''}`;
+                nextLi.innerHTML = `<a class="page-link" ${currentPage !== pageCount ? 'onclick="changePage(${currentPage + 1})"' : ''}>Next</a>`;
+                paginationContainer.appendChild(nextLi);
+            }
+        }
+
+        // Initial pagination setup
+        updatePagination();
+
+        // Make changePage function global
+        window.changePage = function(page) {
+            currentPage = page;
+            updatePagination();
+        };
+    });
+    </script>
+</div>
+
+{% else %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">My Cryptocurrency Portfolio</h3>
+                    <div class="portfolio-summary d-flex flex-column flex-md-row">
+                        <span class="mb-2 mb-md-0 me-md-3">Cash Balance: {{ cash_balance }}</span>
+                        <span class="mb-2 mb-md-0 me-md-3">Portfolio Value: {{ total_value }}</span>
+                        <strong>Grand Total: {{ grand_total }}</strong>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Cryptocurrency</th>
+                                    <th>Quantity</th>
+                                    <th>Current Price</th>
+                                    <th>Total Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for holding in holdings %}
+                                <tr>
+                                    <td>
+                                        <img src="{{ holding.image_url }}" alt="{{ holding.crypto_name }}" class="coin-logo me-2">
+                                        {{ holding.crypto_name }}
+                                        <span class="text-muted">({{ holding.symbol }})</span>
+                                    </td>
+                                    <td>{{ holding.quantity|format_crypto_quantity }}</td>
+                                    <td>{{ holding.price|format_crypto_price }}</td>
+                                    <td>{{ holding.value|format_crypto_price }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if not holdings %}
+                    <div class="alert alert-info text-center" role="alert">
+                        You have no cryptocurrency holdings yet.
+                        <a href="/trade" class="alert-link">Start Trading</a>
+                    </div>
+                    {% endif %}
+                </div>
+</div>
+</div>
+</div>
+</div>
+{% endif %}
+
+<!-- Custom CSS for the landing page -->
+<style>
+    .blockchain-hero {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        min-height: 500px;
+        align-items: center;
+    }
+
+    .blockchain-network-image {
+        max-height: 500px;
+        width: auto;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .feature-icon {
+        max-width: 100px;
+        margin-bottom: 20px;
+    }
+
+    .coin-logo {
+        width: 30px;
+        height: 30px;
+        vertical-align: middle;
+    }
+
+    .crypto-table {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    /* styles to improve mobile appearance */
+    @media (max-width: 768px) {
+        .blockchain-hero {
+            min-height: auto;
+            padding: 40px 0;
+        }
+
+        .hero-content {
+            text-align: center;
+        }
+
+        .cta-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .cta-buttons .btn {
+            width: 100%;
+        }
+
+        .portfolio-summary {
+            font-size: 0.9rem;
+        }
+
+        .crypto-table {
+            font-size: 0.85rem;
+        }
+
+        .feature-card {
+            margin-bottom: 20px;
+        }
+    }
+</style>
+
+{% endblock %}

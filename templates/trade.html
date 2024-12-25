@@ -1,0 +1,289 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Trade
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card shadow-lg border-0 rounded-lg mt-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="text-center mb-0">Trade Cryptocurrencies</h2>
+        </div>
+        <div class="card-body">
+            <!-- Holdings Section -->
+            <div class="mb-4">
+                <h4>Your Holdings</h4>
+                <select class="form-select mb-3" id="from_crypto" name="from_crypto">
+                    <option value="">Select cryptocurrency to trade...</option>
+                    {% for holding in holdings %}
+                        <option value="{{ holding.name }}" data-logo="{{ holding.logo }}">
+                            {{ holding.full_name }} ({{ holding.symbol }}) - {{ holding.quantity|format_crypto }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Available Cryptocurrencies Section -->
+            <div class="mb-4">
+                <h4>Available Cryptocurrencies</h4>
+                <div class="form-group position-relative">
+                    <input type="text"
+                           id="to_crypto_search"
+                           class="form-control"
+                           placeholder="Search by name or symbol..."
+                           autocomplete="off">
+                    <div id="searchResults" class="dropdown-menu w-100" style="display: none;">
+                        <!-- Search results will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trade Form -->
+            <form action="/trade" method="post" id="tradeForm" class="d-none">
+                <input type="hidden" id="from_crypto_input" name="from_crypto">
+                <input type="hidden" id="to_crypto" name="to_crypto">
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0 text-center">Trade Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center g-4">
+                            <!-- From Coin -->
+                            <div class="col-md-5">
+                                <div class="text-center p-3 bg-light rounded-3">
+                                    <strong class="text-muted mb-2 d-block">From</strong>
+                                    <div id="fromCoinDisplay">
+                                        <img id="fromCoinImage" class="coin-logo mb-2">
+                                        <div class="fw-bold" id="fromCoinName"></div>
+                                        <small class="text-muted">Available: <span id="fromCoinAmount"></span></small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Exchange Icon -->
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <i class="fas fa-exchange-alt fa-2x text-primary"></i>
+                                </div>
+                            </div>
+
+                            <!-- To Coin -->
+                            <div class="col-md-5">
+                                <div class="text-center p-3 bg-light rounded-3">
+                                    <strong class="text-muted mb-2 d-block">To</strong>
+                                    <div id="toCoinDisplay">
+                                        <img id="selectedCoinImage" class="coin-logo mb-2">
+                                        <div class="fw-bold" id="selectedCoinName"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Amount Input -->
+                        <div class="row mt-4">
+                            <div class="col-md-6 mx-auto">
+                                <div class="form-floating">
+                                    <input type="number"
+                                        step="any"
+                                        class="form-control"
+                                        id="amount"
+                                        name="amount"
+                                        placeholder="Enter amount"
+                                        required>
+                                    <label for="amount">Amount to Trade</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-transparent text-center">
+                        <button type="submit" class="btn btn-primary px-5">
+                            <i class="fas fa-check-circle me-2"></i>Preview Trade
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Trade Form Style-->
+<style>
+    .coin-logo {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+    }
+
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+
+    .fa-exchange-alt {
+        color: #0d6efd;
+    }
+
+    .form-floating>.form-control {
+        height: calc(3.5rem + 2px);
+        line-height: 1.25;
+    }
+
+    .form-floating>.form-control::placeholder {
+        color: transparent;
+    }
+
+    .form-floating>.form-control:focus,
+    .form-floating>.form-control:not(:placeholder-shown) {
+        padding-top: 1.625rem;
+        padding-bottom: 0.625rem;
+    }
+
+    .form-floating>label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        padding: 1rem 0.75rem;
+        pointer-events: none;
+        border: 1px solid transparent;
+        transform-origin: 0 0;
+        transition: opacity .1s ease-in-out,transform .1s ease-in-out;
+    }
+
+    @media (max-width: 768px) {
+    /* Adjust spacing */
+    .card-body {
+        padding: 1rem;
+    }
+
+    /* Make coin displays more compact */
+    .coin-logo {
+        width: 30px;
+        height: 30px;
+    }
+
+    /* Adjust exchange icon spacing */
+    .col-md-2 {
+        margin: 1rem 0;
+    }
+
+    .fa-exchange-alt {
+        transform: rotate(90deg);
+    }
+
+    /* Make form controls more touch-friendly */
+    .form-select, .form-control {
+        font-size: 16px;  /* Prevents iOS zoom */
+        padding: 0.75rem;
+    }
+
+    /* Adjust search results dropdown */
+    #searchResults {
+        position: static;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .dropdown-item {
+        padding: 0.75rem;
+    }
+
+    /* Make preview button full width */
+    .card-footer .btn {
+        width: 100%;
+        padding: 0.75rem;
+    }
+
+    /* Adjust floating labels */
+    .form-floating {
+        margin-bottom: 1rem;
+    }
+
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fromCryptoSelect = document.getElementById('from_crypto');
+    const searchInput = document.getElementById('to_crypto_search');
+    const searchResults = document.getElementById('searchResults');
+    const tradeForm = document.getElementById('tradeForm');
+    const fromCryptoInput = document.getElementById('from_crypto_input');
+    const toCryptoInput = document.getElementById('to_crypto');
+
+    // Available coins data from the server
+    const availableCoins = {{ available_coins|tojson }};
+
+    // Search functionality
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        if (searchTerm.length < 2) {
+            searchResults.style.display = 'none';
+            return;
+        }
+
+        const matches = availableCoins.filter(coin =>
+            coin.name.toLowerCase().includes(searchTerm) ||
+            coin.symbol.toLowerCase().includes(searchTerm)
+        ).slice(0, 10);
+
+        if (matches.length > 0) {
+            searchResults.innerHTML = matches.map(coin => `
+                <div class="dropdown-item" data-coin-id="${coin.coin_id}"
+                        data-coin-name="${coin.name}" data-image="${coin.image_url}"
+                        data-symbol="${coin.symbol}">
+                    <img src="${coin.image_url}" alt="${coin.name}" class="coin-logo me-2">
+                    ${coin.name} (${coin.symbol})
+                </div>
+            `).join('');
+            searchResults.style.display = 'block';
+        } else {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    // Handle selection from search results
+    searchResults.addEventListener('click', function(e) {
+        const item = e.target.closest('.dropdown-item');
+        if (!item) return;
+
+        if (fromCryptoSelect.value === '') {
+            alert('Please select a cryptocurrency to trade first');
+            return;
+        }
+
+        // Get selected coin data
+        const selectedFromCrypto = fromCryptoSelect.selectedOptions[0].text;
+        const fromCoinLogo = fromCryptoSelect.querySelector('option:checked').dataset.logo;
+
+        // Update form values
+        fromCryptoInput.value = fromCryptoSelect.value;
+        toCryptoInput.value = item.dataset.coinId;
+
+        // Update From display
+        document.getElementById('fromCoinName').textContent = selectedFromCrypto.split(' - ')[0];
+        document.getElementById('fromCoinAmount').textContent = selectedFromCrypto.split(' - ')[1];
+        document.getElementById('fromCoinImage').src = fromCoinLogo;
+
+        // Update To display
+        document.getElementById('selectedCoinImage').src = item.dataset.image;
+        document.getElementById('selectedCoinName').textContent =
+            `${item.dataset.coinName} (${item.dataset.symbol})`;
+
+        // Show form and hide search results
+        searchResults.style.display = 'none';
+        searchInput.value = `${item.dataset.coinName} (${item.dataset.symbol})`;
+        tradeForm.classList.remove('d-none');
+        tradeForm.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Close search results when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

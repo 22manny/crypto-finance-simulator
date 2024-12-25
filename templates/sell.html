@@ -1,0 +1,230 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Sell Cryptocurrency
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-danger text-white text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-coins me-2"></i>Sell Cryptocurrency
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Sell Form -->
+                    <form action="/sell" method="post" class="needs-validation" novalidate>
+                        <!-- Cryptocurrency Select Menu -->
+                        <div class="mb-4">
+                            <label for="crypto_name" class="form-label">
+                                <i class="fab fa-bitcoin me-2"></i>Cryptocurrency
+                            </label>
+                            <select class="form-select form-select-lg" id="crypto_name" name="crypto_name" required>
+                                <option value="" disabled selected>Select a cryptocurrency</option>
+                                {% for holding in holdings %}
+                                    <option value="{{ holding.crypto_name }}">{{ holding.crypto_name }} ({{ holding.quantity }} available)</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text text-muted">
+                                Select the cryptocurrency you want to sell
+                            </div>
+                        </div>
+
+                        <!-- Amount Selection Type -->
+                        <div class="mb-4">
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="sellType" id="sellAmount" value="amount" checked>
+                                <label class="btn btn-outline-danger" for="sellAmount">Sell by Amount</label>
+
+                                <input type="radio" class="btn-check" name="sellType" id="sellDollars" value="dollars">
+                                <label class="btn btn-outline-danger" for="sellDollars">Sell by USD</label>
+                            </div>
+                        </div>
+
+                        <!-- Amount Input Group -->
+                        <div class="mb-4" id="amountInputGroup">
+                            <label for="amount" class="form-label">
+                                <i class="fas fa-dollar-sign me-2"></i>Amount
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">#</span>
+                                <input type="number"
+                                    class="form-control form-control-lg"
+                                    id="amount"
+                                    name="amount"
+                                    placeholder="Enter amount of coins to sell"
+                                    step="any"
+                                    min="0">
+                            </div>
+                            <div class="form-text text-muted">
+                                Enter the number of coins you want to sell
+                            </div>
+                        </div>
+
+                        <!-- Dollars Input Group -->
+                        <div class="mb-4 d-none" id="dollarsInputGroup">
+                            <label for="dollars" class="form-label">
+                                <i class="fas fa-dollar-sign me-2"></i>USD Amount
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number"
+                                    class="form-control form-control-lg"
+                                    id="dollars"
+                                    name="dollars"
+                                    placeholder="Enter USD amount to sell"
+                                    step="0.01"
+                                    min="0">
+                            </div>
+                            <div class="form-text text-muted">
+                                Enter the dollar amount you want to sell
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-shopping-cart me-2"></i>Preview Sale
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Card Footer with Additional Info -->
+                <div class="card-footer bg-light py-3">
+                    <div class="row text-center">
+                        <div class="col-md-6">
+                            <i class="fas fa-shield-alt text-danger me-2"></i>
+                            <small>Secure Transaction</small>
+                        </div>
+                        <div class="col-md-6">
+                            <i class="fas fa-clock text-danger me-2"></i>
+                            <small>Real-time Prices</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script to handle the input switching and calculations -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('amount');
+    const dollarsInput = document.getElementById('dollars');
+    const amountInputGroup = document.getElementById('amountInputGroup');
+    const dollarsInputGroup = document.getElementById('dollarsInputGroup');
+    const cryptoSelect = document.getElementById('crypto_name');
+    let currentPrice = 0;
+
+    // Handle sell type selection
+    document.querySelectorAll('input[name="sellType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'amount') {
+                amountInputGroup.classList.remove('d-none');
+                dollarsInputGroup.classList.add('d-none');
+                dollarsInput.value = '';
+                dollarsInput.removeAttribute('required');
+                amountInput.setAttribute('required', '');
+            } else {
+                amountInputGroup.classList.add('d-none');
+                dollarsInputGroup.classList.remove('d-none');
+                amountInput.value = '';
+                amountInput.removeAttribute('required');
+                dollarsInput.setAttribute('required', '');
+            }
+        });
+    });
+
+    // Update the other input when one changes
+    [amountInput, dollarsInput].forEach(input => {
+        input.addEventListener('input', function() {
+            if (currentPrice > 0) {
+                if (this === amountInput && this.value) {
+                    dollarsInput.value = (parseFloat(this.value) * currentPrice).toFixed(2);
+                } else if (this === dollarsInput && this.value) {
+                    amountInput.value = (parseFloat(this.value) / currentPrice).toFixed(8);
+                }
+            }
+        });
+    });
+});
+</script>
+
+
+<!-- Add custom validation JavaScript -->
+<script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+
+<style>
+    @media (max-width: 768px) {
+        /* Make form elements more touch-friendly */
+        .form-select-lg, .form-control-lg {
+            font-size: 1rem;
+            padding: 0.5rem;
+        }
+
+        /* Adjust button group for better mobile display */
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn-group .btn {
+            border-radius: 0.375rem !important;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Adjust input groups */
+        .input-group {
+            flex-direction: column;
+        }
+
+        .input-group-text {
+            border-radius: 0.375rem 0.375rem 0 0;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .input-group .form-control {
+            border-radius: 0 0 0.375rem 0.375rem;
+            text-align: center;
+        }
+
+        /* Footer adjustments */
+        .card-footer .row > div {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Make preview button more prominent */
+        .btn-lg {
+            padding: 1rem;
+        }
+    }
+</style>
+
+
+{% endblock %}

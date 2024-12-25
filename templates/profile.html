@@ -1,0 +1,277 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Profile
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Profile Header -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-8">
+            <div class="text-center">
+                <h2 class="display-6 fw-bold mb-2">Profile Settings</h2>
+                <p class="text-muted">Manage your personal information and preferences</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Form -->
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form action="{{ url_for('profile') }}" method="post" enctype="multipart/form-data">
+                        <!-- Profile Picture Section -->
+                        <div class="text-center mb-4">
+                            <div class="position-relative d-inline-block">
+                                <img src="{{ profile.profile_picture if profile and profile.profile_picture else '/api/placeholder/150/150' }}"
+                                     class="rounded-circle mb-3" width="150" height="150"
+                                     alt="Profile Picture">
+                                <label for="profile_picture"
+                                       class="position-absolute bottom-0 end-0 bg-white rounded-circle p-2 shadow-sm"
+                                       style="cursor: pointer;">
+                                    <i class="fas fa-camera text-primary"></i>
+                                    <input type="file" id="profile_picture" name="profile_picture" class="d-none">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light py-3">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-user me-2"></i>Personal Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Full Name</label>
+                                        <input type="text" name="full_name"
+                                               value="{{ profile.full_name if profile else '' }}"
+                                               class="form-control" placeholder="Your full name">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Location</label>
+                                        <input type="text" name="location"
+                                               value="{{ profile.location if profile else '' }}"
+                                               class="form-control" placeholder="City, Country">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Bio</label>
+                                        <textarea name="bio" rows="3" class="form-control"
+                                                  placeholder="Tell us about yourself...">{{ profile.bio if profile else '' }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Education & Experience -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light py-3">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-graduation-cap me-2"></i>Education & Experience
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Education Level</label>
+                                        <select name="education_level" class="form-select">
+                                            <option value="">Select education level</option>
+                                            <option value="High School" {{ 'selected' if profile and profile.education_level == 'High School' else '' }}>High School</option>
+                                            <option value="Bachelor's" {{ 'selected' if profile and profile.education_level == "Bachelor's" else '' }}>Bachelor's Degree</option>
+                                            <option value="Master's" {{ 'selected' if profile and profile.education_level == "Master's" else '' }}>Master's Degree</option>
+                                            <option value="PhD" {{ 'selected' if profile and profile.education_level == 'PhD' else '' }}>PhD</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Field of Study</label>
+                                        <input type="text" name="field_of_study"
+                                               value="{{ profile.field_of_study if profile else '' }}"
+                                               class="form-control" placeholder="e.g., Finance, Computer Science">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trading Experience -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light py-3">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-chart-line me-2"></i>Trading Experience
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Years Trading</label>
+                                        <input type="number" name="years_trading" min="0"
+                                               value="{{ profile.years_trading if profile else '' }}"
+                                               class="form-control" placeholder="Number of years">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Trading Interests</label>
+                                        <input type="text" name="interests"
+                                               value="{{ profile.interests if profile else '' }}"
+                                               class="form-control" placeholder="e.g., Crypto, Stocks, NFTs">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Social Links -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light py-3">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-link me-2"></i>Social Links
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">LinkedIn Profile</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fab fa-linkedin"></i></span>
+                                            <input type="url" name="linkedin_url"
+                                                   value="{{ profile.linkedin_url if profile else '' }}"
+                                                   class="form-control" placeholder="Your LinkedIn profile URL">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Twitter Profile</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fab fa-twitter"></i></span>
+                                            <input type="url" name="twitter_url"
+                                                   value="{{ profile.twitter_url if profile else '' }}"
+                                                   class="form-control" placeholder="Your Twitter profile URL">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="/" class="btn btn-light">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Flash Messages -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="toast align-items-center text-white bg-{{ 'danger' if category == 'error' else 'success' }} border-0"
+                     role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            {{ message }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<!-- Initialize Toasts -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    var toastList = toastElList.map(function(toastEl) {
+        var toast = new bootstrap.Toast(toastEl, {
+            autohide: true,
+            delay: 3000
+        });
+        toast.show();
+        return toast;
+    });
+});
+</script>
+
+<style>
+    @media (max-width: 768px) {
+        /* Container adjustments */
+        .container {
+            padding: 0.5rem;
+        }
+
+        /* Card adjustments */
+        .card {
+            margin-bottom: 1rem;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        /* Profile picture section */
+        .rounded-circle {
+            width: 120px;
+            height: 120px;
+        }
+
+        /* Input fields */
+        .form-control, .form-select {
+            font-size: 16px;  /* Prevents iOS zoom */
+            padding: 0.75rem;
+        }
+
+        /* Make input groups stack better */
+        .input-group {
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group-text {
+            padding: 0.75rem;
+        }
+
+        /* Section headers */
+        .card-header {
+            padding: 0.75rem 1rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+        }
+
+        /* Action buttons */
+        .d-flex.justify-content-end {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .d-flex.justify-content-end .btn {
+            width: 100%;
+            padding: 0.75rem;
+        }
+
+        /* Toast notifications */
+        .toast {
+            width: 100%;
+            margin: 0.5rem;
+        }
+
+        /* Make row gaps smaller */
+        .row.g-3 {
+            gap: 0.5rem !important;
+        }
+
+        /* Adjust spacing between sections */
+        .mb-4 {
+            margin-bottom: 1rem !important;
+        }
+    }
+</style>
+{% endblock %}

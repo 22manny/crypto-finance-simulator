@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Coming Soon
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <!-- Icon -->
+                    <div class="display-1 text-primary mb-4">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+
+                    <!-- Title -->
+                    <h2 class="display-6 fw-bold mb-3">Add Cash Feature Coming Soon!</h2>
+
+                    <!-- Message -->
+                    <p class="text-muted mb-4">
+                        We're working hard to bring you a secure and convenient way to add funds to your account.
+                        This feature will be available soon.
+                    </p>
+
+                    <!-- Estimated Timeline -->
+                    <div class="alert alert-info d-inline-block mb-4">
+                        <i class="fas fa-clock me-2"></i>
+                        Estimated Release: Coming Weeks
+                    </div>
+
+                    <!-- Features Preview -->
+                    <div class="row justify-content-center mb-4">
+                        <div class="col-md-8">
+                            <div class="list-group">
+                                <div class="list-group-item border-0 bg-light mb-2 rounded">
+                                    <i class="fas fa-shield-alt text-primary me-2"></i>
+                                    Secure Payment Processing
+                                </div>
+                                <div class="list-group-item border-0 bg-light mb-2 rounded">
+                                    <i class="fas fa-bolt text-primary me-2"></i>
+                                    Instant Deposits
+                                </div>
+                                <div class="list-group-item border-0 bg-light rounded">
+                                    <i class="fas fa-credit-card text-primary me-2"></i>
+                                    Multiple Payment Methods
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Back Button -->
+                    <a href="/" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Return to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

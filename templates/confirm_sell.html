@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Confirm Sale
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-warning text-dark text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-coins me-2"></i>Confirm Sale
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    {% if session.pending_sale %}
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <img src="{{ session.pending_sale.image_url }}"
+                                        alt="{{ session.pending_sale.crypto_name }}"
+                                        class="coin-logo me-2"
+                                        style="width: 30px; height: 30px; object-fit: contain;">
+                                    {{ session.pending_sale.crypto_name }}
+                                </h5>
+                                <p class="card-text">Amount: {{ session.pending_sale.amount | format_crypto_quantity }}</p>
+                                <p class="card-text">Price per unit: {{ session.pending_sale.price | format_crypto_price }}</p>
+                                <p class="card-text">Subtotal: {{ session.pending_sale.total_value | format_crypto_price }}</p>
+                                <p class="card-text">Transaction Fee (0.15%): {{ (session.pending_sale.total_value * 0.0015) | format_crypto_price }}</p>
+                                <p class="card-text"><strong>Net Proceeds: {{ (session.pending_sale.total_value * 0.9985) | format_crypto_price }}</strong></p>
+                                <div class="alert alert-info" role="alert">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    A 0.15% transaction fee will be deducted from your sale proceeds.
+                                </div>
+                                <form action="/confirm_sell" method="post">
+                                    <button type="submit" class="btn btn-success">Confirm Sale</button>
+                                    <a href="/sell" class="btn btn-secondary">Cancel</a>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p>No sale to confirm.</p>
+                        <a href="/sell" class="btn btn-primary">Return to Sell Page</a>
+                    {% endif %}
+                </div>
+
+                <!-- Card Footer with Additional Info -->
+                <div class="card-footer bg-light py-3">
+                    <div class="row text-center">
+                        <div class="col-md-6">
+                            <i class="fas fa-shield-alt text-warning me-2"></i>
+                            <small>Secure Transaction</small>
+                        </div>
+                        <div class="col-md-6">
+                            <i class="fas fa-clock text-warning me-2"></i>
+                            <small>Real-time Prices</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media (max-width: 768px) {
+        /* Adjust card padding */
+        .card-body {
+            padding: 1rem !important;
+        }
+
+        /* Make buttons stack and full width */
+        .card-body form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .card-body .btn {
+            width: 100%;
+            margin: 0 !important;
+            padding: 0.75rem;
+        }
+
+        /* Adjust transaction details */
+        .card-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Make alert more compact */
+        .alert {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Footer adjustments */
+        .card-footer .col-md-6 {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Adjust coin logo size */
+        .coin-logo {
+            width: 24px !important;
+            height: 24px !important;
+        }
+    }
+</style>
+
+{% endblock %}

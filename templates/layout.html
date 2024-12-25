@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Finance: {% block title %}{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* Custom Crypto-Themed Color Scheme */
+        :root {
+            --crypto-primary: #1f9afc;
+            --crypto-secondary: #2ecc71;
+            --crypto-dark: #34495e;
+            --crypto-light: #ecf0f1;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            color: var(--crypto-dark);
+        }
+
+        .navbar {
+            background-color: var(--crypto-primary) !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand, .navbar-nav .nav-link {
+            color: white !important;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--crypto-light) !important;
+            transform: scale(1.05);
+        }
+
+        .crypto-banner {
+            background: linear-gradient(135deg, var(--crypto-primary), var(--crypto-secondary));
+            padding: 20px 0;
+            text-align: center;
+            border-bottom: 2px solid var(--crypto-dark);
+            color: white;
+        }
+
+        .crypto-banner img {
+            max-width: 60px;
+            margin: 0 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .crypto-banner img:hover {
+            transform: rotate(360deg);
+        }
+
+        .nav-item.active .nav-link {
+            font-weight: bold;
+            border-bottom: 2px solid white;
+        }
+
+        /* Dropdown Styles */
+        .dropdown-menu {
+            background-color: var(--crypto-light);
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--crypto-primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line me-2"></i>Crypto Finance
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                {% if session.get('username') %}
+                    <!-- Logged In Navigation -->
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home me-2"></i>Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/buy"><i class="fas fa-shopping-cart me-2"></i>Buy</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/sell"><i class="fas fa-money-bill-wave me-2"></i>Sell</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/trade"><i class="fas fa-exchange-alt me-2"></i>Trade</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/history"><i class="fas fa-history me-2"></i>History</a></li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user me-2"></i>{{ session.get('username') }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="/profile"><i class="fas fa-user-circle me-2"></i>Profile</a></li>
+                                <li><a class="dropdown-item" href="/add_cash"><i class="fas fa-dollar-sign me-2"></i>Add Cash</a></li>
+                                <li><a class="dropdown-item" href="/change_password"><i class="fas fa-key me-2"></i>Change Password</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                {% else %}
+                    <!-- Not Logged In Navigation -->
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="/register"><i class="fas fa-user-plus me-2"></i>Register</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/login"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Banner Section -->
+    <div class="crypto-banner d-none d-md-block">
+        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="Bitcoin" title="Bitcoin">
+        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="Ethereum" title="Ethereum">
+        <img src="https://cryptologos.cc/logos/cardano-ada-logo.png" alt="Cardano" title="Cardano">
+        <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" alt="Binance Coin" title="Binance Coin">
+        <img src="https://cryptologos.cc/logos/dogecoin-doge-logo.png" alt="Dogecoin" title="Dogecoin">
+    </div>
+
+    <!-- Webpage Heading -->
+    <div class="text-center my-4">
+        <h1 class="display-4 fw-bold">
+            <span class="text-primary">Crypto</span>
+            <span class="text-dark">Invest</span>
+            <i class="fas fa-chart-line ms-2 text-success animate-bounce"></i>
+        </h1>
+        <p class="lead text-muted">Practice Trading. Build Confidence. Zero Risk. Real Learning.</p>
+    </div>
+
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container mt-3">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}
+        <!-- Content for specific pages will be injected here -->
+        {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">© 2024 Crypto Finance. Educational Purposes Only.</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

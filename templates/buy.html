@@ -1,0 +1,449 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Buy Cryptocurrency
+{% endblock %}
+
+{% block content %}
+<style>
+    .coin-logo {
+        width: 25px;
+        height: 25px;
+        object-fit: contain;
+        vertical-align: middle;
+    }
+
+    .crypto-table {
+        font-size: 0.95rem;
+    }
+
+    .crypto-table td {
+        vertical-align: middle;
+    }
+
+    .pagination .page-link {
+        color: #0d6efd;
+        cursor: pointer;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+    }
+
+    .crypto-table tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+
+
+    @media (max-width: 768px) {
+    /* Make table more readable on mobile */
+    .crypto-table {
+        font-size: 0.85rem;
+    }
+
+    /* Adjust buy button size for better touch targets */
+    .buy-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Better spacing for search and page size controls */
+    .col-md-6 {
+        margin-bottom: 1rem;
+    }
+
+    /* Make modal content more mobile-friendly */
+    .modal-body {
+        padding: 1rem;
+    }
+
+    /* Improve spacing in transaction details */
+    .card-body .d-flex {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: start;
+    }
+
+    /* Make buttons full width on mobile */
+    .modal-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .modal-footer button {
+        width: 100%;
+        margin: 0 !important;
+    }
+}
+</style>
+
+<div class="container">
+    <div class="card shadow-lg border-0 rounded-lg mt-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="text-center mb-0">Buy Cryptocurrency</h2>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                Your Balance: ${{ user_cash|round(2) }}
+            </div>
+
+            <!-- Search and Page Size Controls -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <input type="text" id="cryptoSearch" class="form-control" placeholder="Search cryptocurrencies...">
+                </div>
+                <div class="col-md-6 text-end">
+                    <select id="pageSize" class="form-select d-inline-block w-auto">
+                        <option value="20">Show 20</option>
+                        <option value="50">Show 50</option>
+                        <option value="100">Show 100</option>
+                        <option value="200">Show All</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover crypto-table" id="cryptoTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Coin</th>
+                            <th>Price</th>
+                            <th>24h %</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for coin in coins %}
+                        <tr class="crypto-row">
+                            <td>{{ coin.market_cap_rank }}</td>
+                            <td>
+                                <img src="{{ coin.image_url }}" alt="{{ coin.name }}" class="coin-logo me-2">
+                                {{ coin.name }}
+                                <span class="text-muted">({{ coin.symbol }})</span>
+                            </td>
+                            <td>{{ coin.current_price|format_crypto_price }}</td>
+                            <td class="{{ 'text-success' if coin.price_change_percentage_24h >= 0 else 'text-danger' }}">
+                                {{ coin.price_change_percentage_24h|round(2) }}%
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary buy-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#buyModal"
+                                        data-coin-id="{{ coin.id }}"
+                                        data-coin-name="{{ coin.name }}"
+                                        data-coin-price="{{ coin.current_price }}">
+                                    Buy
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Cryptocurrency pagination" class="mt-4">
+                <ul class="pagination justify-content-center" id="pagination"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Buy Modal Section-->
+<div class="modal fade" id="buyModal" tabindex="-1" aria-labelledby="buyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="buyModalLabel">Buy Cryptocurrency</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/buy" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="crypto_id" name="crypto_id">
+
+                    <!-- Buy Type Selector -->
+                    <div class="mb-4">
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="buyType" id="buyAmount" value="amount" checked>
+                            <label class="btn btn-outline-primary" for="buyAmount">Buy Amount</label>
+
+                            <input type="radio" class="btn-check" name="buyType" id="buyDollars" value="dollars">
+                            <label class="btn btn-outline-primary" for="buyDollars">Buy with USD</label>
+                        </div>
+                    </div>
+
+                    <!-- Amount Input Group -->
+                    <div class="mb-3" id="amountInputGroup">
+                        <label class="form-label">Amount to Buy</label>
+                        <input type="number" class="form-control" id="amount" name="amount" step="any"
+                               placeholder="Enter amount of coins">
+                    </div>
+
+                    <!-- Dollars Input Group -->
+                    <div class="mb-3 d-none" id="dollarsInputGroup">
+                        <label class="form-label">USD Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="dollars" name="dollars" step="0.01"
+                                   placeholder="Enter USD amount">
+                        </div>
+                    </div>
+
+                    <!-- Transactions Details-->
+                    <div class="card bg-light mb-3">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Transaction Details</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Current Price:</span>
+                                <strong>$<span id="currentPrice"></span></strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Total Cost:</span>
+                                <strong>$<span id="totalCost">0.00</span></strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Your Balance:</span>
+                                <strong data-user-balance="{{ user_cash }}">{{ user_cash|format_crypto_price }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Preview Purchase</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Include the pagination and search JavaScript from your index.html -->
+
+
+
+<script>
+// Function to format price and total value in Transaction Details
+function formatCryptoPrice(value) {
+    if (!value || isNaN(value)) return "0";
+
+    value = parseFloat(value);
+    if (value === 0) return "0";
+
+    if (value >= 1) {
+        // For values >= 1, show up to 2 decimal places
+        let formatted = value.toFixed(2);
+        // Remove trailing zeros and decimal if necessary
+        while (formatted.endsWith('0')) {
+            formatted = formatted.slice(0, -1);
+        }
+        if (formatted.endsWith('.')) {
+            formatted = formatted.slice(0, -1);
+        }
+        return formatted;
+    } else {
+        // For values < 1, show up to 8 decimal places
+        let formatted = value.toFixed(8);
+        // Remove trailing zeros
+        while (formatted.endsWith('0')) {
+            formatted = formatted.slice(0, -1);
+        }
+        if (formatted.endsWith('.')) {
+            formatted = formatted.slice(0, -1);
+        }
+        return formatted;
+    }
+}
+
+// Wrap all functionality in a single DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', function() {
+    // Table pagination and search functionality
+    const table = document.getElementById('cryptoTable');
+    const searchInput = document.getElementById('cryptoSearch');
+    const pageSizeSelect = document.getElementById('pageSize');
+    const tbody = table?.querySelector('tbody');
+    const paginationContainer = document.getElementById('pagination');
+
+    if (table && searchInput && pageSizeSelect && tbody && paginationContainer) {
+        let allRows = Array.from(tbody.querySelectorAll('tr'));
+        let currentPage = 1;
+        let pageSize = parseInt(pageSizeSelect.value);
+
+        // Search functionality
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            allRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+            updatePagination();
+        });
+
+        // Page size functionality
+        pageSizeSelect.addEventListener('change', function() {
+            pageSize = parseInt(this.value);
+            currentPage = 1;
+            updatePagination();
+        });
+
+        // Pagination functions
+        function updatePagination() {
+            const visibleRows = allRows.filter(row => row.style.display !== 'none');
+            const pageCount = Math.ceil(visibleRows.length / pageSize);
+
+            // Show/hide rows for current page
+            visibleRows.forEach((row, index) => {
+                row.style.display = (Math.floor(index / pageSize) + 1 === currentPage) ? '' : 'none';
+            });
+
+            // Update pagination controls
+            paginationContainer.innerHTML = '';
+
+            // Previous button
+            if (pageCount > 1) {
+                const prevLi = document.createElement('li');
+                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                prevLi.innerHTML = `<a class="page-link" href="#" ${currentPage !== 1 ? 'onclick="changePage(' + (currentPage - 1) + '); return false;"' : ''}>Previous</a>`;
+                paginationContainer.appendChild(prevLi);
+            }
+
+            // Page numbers
+            for (let i = 1; i <= pageCount; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${currentPage === i ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>`;
+                paginationContainer.appendChild(li);
+            }
+
+            // Next button
+            if (pageCount > 1) {
+                const nextLi = document.createElement('li');
+                nextLi.className = `page-item ${currentPage === pageCount ? 'disabled' : ''}`;
+                nextLi.innerHTML = `<a class="page-link" href="#" ${currentPage !== pageCount ? 'onclick="changePage(' + (currentPage + 1) + '); return false;"' : ''}>Next</a>`;
+                paginationContainer.appendChild(nextLi);
+            }
+        }
+
+        // Initial pagination setup
+        updatePagination();
+
+        // Make changePage function global
+        window.changePage = function(page) {
+            currentPage = page;
+            updatePagination();
+        };
+    }
+
+    // Buy modal functionality
+    const buyModal = document.getElementById('buyModal');
+    if (buyModal) {
+        const amountInput = document.getElementById('amount');
+        const dollarsInput = document.getElementById('dollars');
+        const currentPriceSpan = document.getElementById('currentPrice');
+        const totalCostSpan = document.getElementById('totalCost');
+        const amountInputGroup = document.getElementById('amountInputGroup');
+        const dollarsInputGroup = document.getElementById('dollarsInputGroup');
+        const previewButton = buyModal.querySelector('button[type="submit"]');
+        let currentCoinPrice = 0;
+
+        // Handle buy type selection
+        document.querySelectorAll('input[name="buyType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'amount') {
+                    amountInputGroup.classList.remove('d-none');
+                    dollarsInputGroup.classList.add('d-none');
+                    dollarsInput.value = '';
+                } else {
+                    amountInputGroup.classList.add('d-none');
+                    dollarsInputGroup.classList.remove('d-none');
+                    amountInput.value = '';
+                }
+                updateTotalCost();
+                validatePurchase();
+            });
+        });
+
+        // Update total cost when amount changes
+        amountInput.addEventListener('input', function() {
+            updateTotalCost();
+            validatePurchase();
+        });
+
+        dollarsInput.addEventListener('input', function() {
+            updateTotalCost();
+            validatePurchase();
+        });
+
+        function updateTotalCost() {
+            let total = 0;
+            if (amountInputGroup.classList.contains('d-none')) {
+                // Dollar amount mode
+                const dollars = parseFloat(dollarsInput.value) || 0;
+                total = dollars;
+                // Update amount field
+                if (currentCoinPrice > 0) {
+                    amountInput.value = formatCryptoPrice(dollars / currentCoinPrice);
+                }
+            } else {
+                // Coin amount mode
+                const amount = parseFloat(amountInput.value) || 0;
+                total = amount * currentCoinPrice;
+                // Update dollars field
+                dollarsInput.value = formatCryptoPrice(total);
+            }
+            totalCostSpan.textContent = formatCryptoPrice(total);
+        }
+
+        function validatePurchase() {
+            const totalCost = parseFloat(totalCostSpan.textContent);
+            const userBalanceElement = document.querySelector('[data-user-balance]');
+            const userBalance = userBalanceElement ? parseFloat(userBalanceElement.getAttribute('data-user-balance')) : 0;
+            const amount = amountInputGroup.classList.contains('d-none') ?
+                parseFloat(dollarsInput.value) || 0 :
+                parseFloat(amountInput.value) || 0;
+
+            const isValid = amount > 0 && totalCost > 0 && totalCost <= userBalance;
+            if (previewButton) {
+                previewButton.disabled = !isValid;
+            }
+        }
+
+        buyModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            if (button) {
+                const coinId = button.getAttribute('data-coin-id');
+                const coinName = button.getAttribute('data-coin-name');
+                currentCoinPrice = parseFloat(button.getAttribute('data-coin-price'));
+
+                const cryptoIdInput = document.getElementById('crypto_id');
+                if (cryptoIdInput) {
+                    cryptoIdInput.value = coinId;
+                }
+
+                if (currentPriceSpan) {
+                    currentPriceSpan.textContent = formatCryptoPrice(currentCoinPrice);
+                }
+
+                const modalTitle = buyModal.querySelector('.modal-title');
+                if (modalTitle) {
+                    modalTitle.textContent = `Buy ${coinName}`;
+                }
+
+                // Reset inputs and validation
+                if (amountInput) amountInput.value = '';
+                if (dollarsInput) dollarsInput.value = '';
+                if (totalCostSpan) totalCostSpan.textContent = '0';
+                validatePurchase();
+            }
+        });
+    }
+});
+</script>
+
+<!-- Add your existing styles -->
+<style>
+/* Add your existing styles from index.html here */
+</style>
+{% endblock %}

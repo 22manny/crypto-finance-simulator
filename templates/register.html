@@ -1,0 +1,265 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h2 class="mb-0">Register</h2>
+                </div>
+                <div class="card-body p-4">
+                    <form action="/register" method="post" class="needs-validation" novalidate>
+                        <!-- Username field -->
+                        <div class="mb-4">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text"
+                                       class="form-control"
+                                       id="username"
+                                       name="username"
+                                       placeholder="Enter username"
+                                       required
+                                       minlength="3"
+                                       pattern="[a-zA-Z0-9_-]+"
+                                       title="Username can only contain letters, numbers, underscores, and hyphens">
+                            </div>
+                            <div class="form-text">
+                                Username must be at least 3 characters long and can only contain letters, numbers, underscores, and hyphens.
+                            </div>
+                        </div>
+
+                        <!-- Password fields -->
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password"
+                                       class="form-control"
+                                       id="password"
+                                       name="password"
+                                       placeholder="Enter password"
+                                       required
+                                       minlength="8"
+                                       pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*=_\-+<>]).{8,}"
+                                       title="Must contain at least one number, one uppercase and lowercase letter, one special character (!@#$%^&*=_-+<>), and at least 8 characters">
+                            </div>
+                            <div class="form-text">
+                                Password must contain at least 8 characters, including uppercase, lowercase, numbers, and special characters.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirmation" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password"
+                                       class="form-control"
+                                       id="confirmation"
+                                       name="confirmation"
+                                       placeholder="Confirm password"
+                                       required>
+                            </div>
+                        </div>
+
+                        <!-- Security Questions -->
+                        {% for i in range(1, 4) %}
+                        <div class="mb-4">
+                            <label for="security_question{{ i }}" class="form-label">Security Question {{ i }}</label>
+                            <select class="form-select mb-2"
+                                    id="security_question{{ i }}"
+                                    name="security_question{{ i }}"
+                                    required>
+                                <option value="" disabled selected>Select security question {{ i }}</option>
+                                {% for question in security_questions %}
+                                    <option value="{{ question }}">{{ question }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-key"></i>
+                                </span>
+                                <input type="text"
+                                       class="form-control"
+                                       name="security_answer{{ i }}"
+                                       placeholder="Your answer"
+                                       required
+                                       minlength="2">
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <!-- Terms of Use -->
+                        <div class="mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Terms of Use</h5>
+                                    <p class="terms-description">
+                                        Please review our <a href="/terms" target="_blank">Terms of Use</a>. By proceeding, you agree to abide by these terms.
+                                    </p>
+
+                                </div>
+                            </div>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       id="terms_accepted"
+                                       name="terms_accepted"
+                                       required>
+                                <label class="form-check-label" for="terms_accepted">
+                                    I have read and agree to the Terms of Use
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Register
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center py-3">
+                    <div class="small">
+                        Already have an account? <a href="/login">Sign in</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add custom styles -->
+<style>
+.terms-text {
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-size: 0.9rem;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    /* Make form inputs more touch-friendly */
+    .form-control, .form-select {
+        font-size: 16px;  /* Prevents iOS zoom */
+        padding: 0.75rem;
+    }
+
+    /* Adjust card spacing */
+    .card {
+        margin: 0.5rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    /* Make input groups stack better */
+    .input-group {
+        margin-bottom: 0.5rem;
+    }
+
+    .input-group-text {
+        padding: 0.75rem;
+    }
+
+    /* Improve form text readability */
+    .form-text {
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        padding: 0 0.5rem;
+    }
+
+    /* Make security questions more compact */
+    .mb-4 {
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* Adjust terms section */
+    .terms-description {
+        font-size: 0.9rem;
+    }
+
+    /* Make checkbox easier to tap */
+    .form-check {
+        padding: 1rem 2rem;
+    }
+
+    .form-check-input {
+        width: 1.2em;
+        height: 1.2em;
+    }
+
+    /* Make submit button more prominent */
+    .btn-lg {
+        padding: 1rem;
+        font-size: 1.1rem;
+    }
+}
+</style>
+
+<!-- Form validation script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+
+            // Check if passwords match
+            var password = document.getElementById('password')
+            var confirmation = document.getElementById('confirmation')
+            if (password.value !== confirmation.value) {
+                confirmation.setCustomValidity('Passwords must match')
+                event.preventDefault()
+                event.stopPropagation()
+            } else {
+                confirmation.setCustomValidity('')
+            }
+
+            form.classList.add('was-validated')
+        }, false)
+    })
+
+    // Prevent selecting the same security question multiple times
+    const questions = [
+        document.getElementById('security_question1'),
+        document.getElementById('security_question2'),
+        document.getElementById('security_question3')
+    ]
+
+    questions.forEach(question => {
+        question.addEventListener('change', function() {
+            const selectedValues = questions.map(q => q.value)
+
+            questions.forEach(q => {
+                Array.from(q.options).forEach(option => {
+                    if (option.value && option.value !== q.value) {
+                        option.disabled = selectedValues.includes(option.value)
+                    }
+                })
+            })
+        })
+    })
+})
+</script>
+{% endblock %}
