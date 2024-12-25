@@ -1,0 +1,23 @@
+/* Terms of Use Page Styling */
+.terms-content h1 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.terms-content h2 {
+    margin-top: 25px;
+    margin-bottom: 15px;
+    color: #0066cc;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.terms-content ul, .terms-content ol {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.terms-content p, .terms-content li {
+    line-height: 1.6;
+    color: #333;
+}

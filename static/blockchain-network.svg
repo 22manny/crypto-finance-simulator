@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+    <title>Blockchain Network</title>
+    <circle cx="200" cy="150" r="100" fill="#f0f0f0" stroke="#007bff" stroke-width="3"/>
+    <circle cx="100" cy="70" r="30" fill="#28a745" />
+    <circle cx="300" cy="70" r="30" fill="#28a745" />
+    <circle cx="50" cy="230" r="30" fill="#28a745" />
+    <circle cx="350" cy="230" r="30" fill="#28a745" />
+    <line x1="100" y1="70" x2="300" y2="70" stroke="#007bff" stroke-width="2"/>
+    <line x1="50" y1="230" x2="350" y2="230" stroke="#007bff" stroke-width="2"/>
+    <line x1="100" y1="70" x2="50" y2="230" stroke="#007bff" stroke-width="2"/>
+    <line x1="300" y1="70" x2="350" y2="230" stroke="#007bff" stroke-width="2"/>
+    <text x="200" y="160" text-anchor="middle" font-size="16" fill="#007bff">Blockchain Network</text>
+</svg>

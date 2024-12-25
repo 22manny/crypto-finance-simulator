@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400">
+  <!-- Background -->
+  <rect width="1000" height="400" fill="#f4f4f4" />
+
+  <!-- Blocks -->
+  <rect x="100" y="100" width="150" height="100" fill="#4caf50" stroke="#333" stroke-width="2" />
+  <rect x="300" y="100" width="150" height="100" fill="#4caf50" stroke="#333" stroke-width="2" />
+  <rect x="500" y="100" width="150" height="100" fill="#4caf50" stroke="#333" stroke-width="2" />
+  <rect x="700" y="100" width="150" height="100" fill="#4caf50" stroke="#333" stroke-width="2" />
+
+  <!-- Block Labels -->
+  <text x="125" y="130" font-family="Arial" font-size="14" fill="#000">Record 1</text>
+  <text x="325" y="130" font-family="Arial" font-size="14" fill="#000">Record 2</text>
+  <text x="525" y="130" font-family="Arial" font-size="14" fill="#000">Record 3</text>
+  <text x="725" y="130" font-family="Arial" font-size="14" fill="#000">Record 4</text>
+
+  <!-- Locks -->
+  <circle cx="175" cy="180" r="15" fill="#ffeb3b" stroke="#333" stroke-width="2" />
+  <circle cx="375" cy="180" r="15" fill="#ffeb3b" stroke="#333" stroke-width="2" />
+  <circle cx="575" cy="180" r="15" fill="#ffeb3b" stroke="#333" stroke-width="2" />
+  <circle cx="775" cy="180" r="15" fill="#ffeb3b" stroke="#333" stroke-width="2" />
+
+  <!-- Chain Links -->
+  <line x1="250" y1="150" x2="300" y2="150" stroke="#333" stroke-width="2" />
+  <line x1="450" y1="150" x2="500" y2="150" stroke="#333" stroke-width="2" />
+  <line x1="650" y1="150" x2="700" y2="150" stroke="#333" stroke-width="2" />
+
+  <!-- Lock Icons -->
+  <text x="169" y="185" font-family="Arial" font-size="18" fill="#000">&#x1F512;</text>
+  <text x="369" y="185" font-family="Arial" font-size="18" fill="#000">&#x1F512;</text>
+  <text x="569" y="185" font-family="Arial" font-size="18" fill="#000">&#x1F512;</text>
+  <text x="769" y="185" font-family="Arial" font-size="18" fill="#000">&#x1F512;</text>
+
+  <!-- Explanation -->
+  <text x="100" y="300" font-family="Arial" font-size="16" fill="#333">
+    Blocks represent records, linked securely in a chain.
+  </text>
+  <text x="100" y="320" font-family="Arial" font-size="16" fill="#333">
+    Each block is encrypted and tamper-proof (indicated by locks).
+  </text>
+</svg>
+
