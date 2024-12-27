@@ -100,7 +100,7 @@
                             {{ coin.name }}
                             <span class="text-muted">({{ coin.symbol }})</span>
                         </td>
-                        <td>${{ coin.current_price|format_crypto_price }}</td>
+                        <td>{{ coin.current_price|format_crypto_price }}</td>
                         <td class="{{ 'text-success' if coin.price_change_percentage_1h >= 0 else 'text-danger' }}">
                             {{ coin.price_change_percentage_1h|format_percentage }}%
                         </td>
@@ -110,7 +110,7 @@
                         <td class="{{ 'text-success' if coin.price_change_percentage_7d >= 0 else 'text-danger' }}">
                             {{ coin.price_change_percentage_7d|format_percentage }}%
                         </td>
-                        <td>${{ (coin.market_cap / 1000000)|format_crypto_price }}M</td>
+                        <td>{{ (coin.market_cap / 1000000)|format_crypto_price }}M</td>
                     </tr>
                     {% endfor %}
                 </tbody>
