@@ -811,7 +811,7 @@ def register():
             )
 
             conn.commit()
-            session["user_id"] = user_id
+            #session["user_id"] = user_id
             flash(f"Registered successfully! Welcome, {username}!")
             return redirect("/")
 
@@ -823,7 +823,7 @@ def register():
 
     return render_template("register.html",
                          security_questions=security_questions,
-    )#terms_of_use=TERMS_OF_USE)
+    )
 
 
 
