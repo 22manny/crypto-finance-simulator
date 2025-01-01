@@ -812,8 +812,8 @@ def register():
 
             conn.commit()
             #session["user_id"] = user_id
-            flash(f"Registered successfully! Welcome, {username}!")
-            return redirect("/")
+            flash(f"Registered successfully!")
+            return redirect("/login")
 
         except Exception as e:
             conn.rollback()
