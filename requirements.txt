@@ -6,3 +6,5 @@ gunicorn
 SQLAlchemy
 werkzeug
 markdown
+google-genai
+pydub
